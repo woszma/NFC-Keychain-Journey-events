@@ -1,67 +1,66 @@
-# NFC Keychain Project & Deployment FAQ
+# 🐘 NFC Keychain Journey (大象女士)
 
-## 回答你的問題：這可以免費部署到 GitHub 嗎？ (Can this be free to deploy to GitHub?)
+這是一個結合實體物件與數位敘事的互動式社交實驗專案。透過 NFC 鎖匙扣的傳遞，記錄每一段情感連結的旅程。
 
-**簡單答案：**
-**可以**，這個 Web App 的前端界面可以完全免費部署到 **GitHub Pages**。
+## 🌟 專案特點
+- **實體與數位結合**：利用 NFC 技術（或 URL ID）追蹤實體鎖匙扣的傳遞路徑。
+- **情感引導**：基於隨機產生的情緒指令（例如：「交給最想多謝的人」）來推動傳遞，而非隨機贈送。
+- **旅程歷史**：每位持有者都可以查看該鎖匙扣過去的所有站點與故事。
+- **即時同步**：整合 Supabase 雲端資料庫，確保所有參與者看到的資訊都是最新且同步的。
+- **管理員地圖**：一目了然的 Dashboard，展示 1-100 號鎖匙扣的活躍狀態。
 
-**詳細操作指南：**
+## 🛠️ 技術棧 (Tech Stack)
+- **Frontend**: React 18+, Vite, Tailwind CSS
+- **Icons**: Lucide React
+- **Backend/Database**: Supabase (PostgreSQL)
+- **Deployment**: GitHub Pages (Free Hosting)
 
-### 1. 關於「免費」的定義與限制
-- **前端 (Frontend):** 放在 GitHub Pages 是 **100% 免費** 的。用戶可以打開網址看到這個界面。
-- **資料 (Database):** 
-  - **目前版本 (Demo):** 使用 `localStorage`。資料儲存在用戶自己的瀏覽器中。**限制：** 當用戶 A 輸入資料後，傳連結給用戶 B，用戶 B 打開時**看不到** A 輸入的資料（因為沒有後端伺服器同步）。
-  - **解決方案 (Free Tier Backend):** 如果你想真正運作（讓 A 的資料傳給 B），你需要連接一個免費的資料庫服務，例如 **Firebase (Realtime Database)** 或 **Supabase**。這些服務都有免費額度 (Free Tier)，對於個人專案或小規模使用（例如 < 500 人）通常是免費的。
+## 🚀 快速開始
 
-### 2. 如何部署目前的版本到 GitHub Pages
+### 1. 環境設定
+在專案根目錄建立 `.env` 檔案，或在部署平台的 Secrets 中加入以下變數：
+```env
+VITE_SUPABASE_URL=你的_Supabase_專案網址
+VITE_SUPABASE_ANON_KEY=你的_Supabase_匿名金鑰
+```
 
-如果你想先部署這個版本給朋友看（作為 Demo），請參考以下步驟：
+### 2. 本地開發
+```bash
+npm install
+npm run dev
+```
 
-**事前準備：**
-確保你已經安裝 `node.js` 和 `git`。
+### 3. 資料庫結構 (Supabase)
+請在 Supabase 建立名為 `NFC Keychain Journey events` 的資料表，欄位如下：
+- `id`: int8 (Primary Key, Auto-increment)
+- `keychain_id`: text (鎖匙扣編號)
+- `timestamp`: int8 (時間戳記)
+- `from_name`: text (贈送者)
+- `to_name`: text (接收者)
+- `prompt_key`: text (收到的原因代碼)
+- `prompt_text`: text (收到的原因文字)
+- `next_prompt_key`: text (下一個指令代碼)
+- `next_prompt_text`: text (下一個指令文字)
 
-**步驟：**
+## 📦 部署到 GitHub Pages (100% 免費)
 
-1.  **初始化 Git:**
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    ```
+本專案已優化，支援完全免費的自動化部署：
 
-2.  **推送到 GitHub:**
-    - 在 GitHub 建立一個新 Repository。
-    - 連結並推送：
-    ```bash
-    git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-    git push -u origin main
-    ```
+1. **修改 package.json**:
+   確保 `homepage` 欄位指向你的 GitHub 網址：`https://[你的帳號].github.io/[倉庫名稱]`。
 
-3.  **設定 GitHub Pages (自動化):**
-    - 在專案中安裝 `gh-pages` 套件：
-      ```bash
-      npm install gh-pages --save-dev
-      ```
-    - 在 `package.json` 中新增：
-      ```json
-      "homepage": "https://YOUR_USERNAME.github.io/YOUR_REPO_NAME",
-      "scripts": {
-        "predeploy": "npm run build",
-        "deploy": "gh-pages -d build"
-      }
-      ```
-    - 執行部署：
-      ```bash
-      npm run deploy
-      ```
+2. **執行部署指令**:
+   ```bash
+   npm run deploy
+   ```
+   這會自動執行打包 (Build) 並將結果推送到 `gh-pages` 分支。
 
-4.  **完成！**
-    - 你的網站就會在 `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME` 上線了。
+3. **啟用 GitHub Pages**:
+   前往 GitHub 倉庫設定 -> Pages，選擇 `gh-pages` 分支作為來源。
+
+## 🐘 關於「大象女士」
+這不只是一個鎖匙扣，它是一個情感的載體。
+> 「請你把呢個鎖匙扣，交畀你最想祝福嘅人，等我可以認識到佢。」
 
 ---
-
-## Project Setup
-This project uses React, Tailwind CSS, and Lucide Icons.
-
-1.  `npm install`
-2.  `npm start`
+*Created with ❤️ for the community.*

@@ -94,8 +94,6 @@ function App() {
       next_prompt_text: event.next_prompt_text || null
     };
 
-    console.log('Saving to Supabase (Payload):', payload);
-
     const { error } = await supabase
       .from('NFC Keychain Journey events')
       .insert([payload]);
