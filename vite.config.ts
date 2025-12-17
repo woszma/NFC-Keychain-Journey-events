@@ -4,5 +4,6 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // 確保在 GitHub Pages 子路徑也能運作
+  // 這裡非常重要：必須設定成你的 Repo 名字，前後都要有斜線
+  base: '/NFC-Keychain-Journey-events/', 
 });
