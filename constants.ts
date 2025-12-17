@@ -1,6 +1,7 @@
 import { Prompt } from './types';
 
-// 5. 隨機提示池 (Random Prompt Pool)
+// 隨機提示池 (Random Prompt Pool)
+// 你可以在這裡自由增加、刪除或修改你想出現的原因！
 export const PROMPT_POOL: Prompt[] = [
   { key: 'MOST_WORRIED', text: '最擔心嘅人' },
   { key: 'MOST_COMFORTABLE', text: '相處最舒服嘅人' },
@@ -12,6 +13,12 @@ export const PROMPT_POOL: Prompt[] = [
   { key: 'SECRET_ADMIRER', text: '一直默默留意嘅人' },
   { key: 'MADE_YOU_LAUGH', text: '最近令你大笑嘅人' },
   { key: 'LONG_TIME_NO_SEE', text: '好耐無見嘅舊朋友' },
+  // 你可以像這樣繼續加落去：
+  { key: 'HARD_WORKING', text: '最近好努力加油緊嘅人' },
+  { key: 'KIND_STRANGER', text: '對你好好嘅陌生人' },
+  { key: 'CRAZY_FRIEND', text: '性格最瘋狂但最真誠嘅朋友' },
+  { key: 'INSPIRE_YOU', text: '帶畀你啟發或者動力嘅人' },
+  { key: 'FOODIE_PARTNER', text: '最想同佢一齊去食好嘢嘅人' }
 ];
 
 // Note: In Supabase, these initial seeds should ideally be inserted into the DB manually once.
