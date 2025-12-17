@@ -1,20 +1,31 @@
 /// <reference types="vite/client" />
 import { createClient } from '@supabase/supabase-js';
 
-// Accessing import.meta.env directly allows Vite to inject the environment variables during build.
-// Using (import.meta as any).env prevents this injection, causing a runtime error in the browser.
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// 安全地取得環境變數，避免在某些環境下 crash
+const getEnv = (key: string) => {
+  try {
+    // @ts-ignore
+    return import.meta.env?.[key];
+  } catch (e) {
+    return undefined;
+  }
+};
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+const supabaseUrl = getEnv('VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
   console.warn(
-    'Supabase credentials are missing. Networking features will fail safely.\n' +
-    'Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.'
+    '⚠️ Supabase 未設定或環境變數讀取失敗。\n' +
+    'App 將以「預覽模式」執行，資料不會儲存到雲端資料庫。'
   );
 }
 
-// Fallback to prevent invalid URL errors in Supabase client if keys are missing
-const url = SUPABASE_URL || 'https://placeholder.supabase.co';
-const key = SUPABASE_ANON_KEY || 'placeholder';
+// 如果沒有 URL，使用假網址防止 createClient 報錯崩潰
+// 這樣 UI 仍然可以 render 出來供預覽
+const finalUrl = supabaseUrl || 'https://placeholder.supabase.co';
+const finalKey = supabaseAnonKey || 'placeholder-key';
 
-export const supabase = createClient(url, key);
+export const supabase = createClient(finalUrl, finalKey);

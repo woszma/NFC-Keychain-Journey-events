@@ -7,7 +7,7 @@ import { NewInput } from './components/screens/NewInput';
 import { Explanation } from './components/screens/Explanation';
 import { HistoryView } from './components/screens/History';
 import { AdminDashboard } from './components/screens/AdminDashboard';
-import { supabase } from './lib/supabaseClient';
+import { supabase, isSupabaseConfigured } from './lib/supabaseClient';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.ADMIN);
@@ -16,6 +16,9 @@ function App() {
   const [globalStore, setGlobalStore] = useState<GlobalStore>({});
   const [activeId, setActiveId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  
+  // New state to track if we are in offline/demo mode due to errors
+  const [isOfflineMode, setIsOfflineMode] = useState<boolean>(!isSupabaseConfigured);
 
   // Temporary state for the flow
   const [currentNewHolderName, setCurrentNewHolderName] = useState<string>('');
@@ -29,44 +32,67 @@ function App() {
 
   const fetchEvents = async () => {
     setIsLoading(true);
+    
+    // 如果環境變數本身沒設定，直接進入離線模式
+    if (!isSupabaseConfigured) {
+        setIsOfflineMode(true);
+        setIsLoading(false);
+        return;
+    }
+
     try {
-      // Fetch all events from Supabase
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .order('timestamp', { ascending: true });
 
-      if (error) throw error;
-
-      // Group by keychain_id
-      const store: GlobalStore = {};
-      if (data) {
-        data.forEach((event: any) => {
-          const kId = event.keychain_id;
-          if (!store[kId]) store[kId] = [];
-          store[kId].push(event);
-        });
+      if (error) {
+        // 如果是資料表不存在 (PGRST205) 或連線問題，切換到離線模式，不要讓 App 崩潰
+        if (error.code === 'PGRST205' || error.code === '42P01') {
+           console.warn('⚠️ 資料表 "events" 不存在。App 將以 Demo 模式執行，資料不會儲存。');
+           setIsOfflineMode(true);
+        } else {
+           throw error;
+        }
+      } else {
+        // 成功連線且讀取到資料
+        setIsOfflineMode(false);
+        
+        // Group by keychain_id
+        const store: GlobalStore = {};
+        if (data) {
+          data.forEach((event: any) => {
+            const kId = event.keychain_id;
+            if (!store[kId]) store[kId] = [];
+            store[kId].push(event);
+          });
+        }
+        setGlobalStore(store);
       }
-      setGlobalStore(store);
     } catch (err) {
       console.error('Error fetching data:', err);
-      // Fallback for demo if no DB connection yet
-      if (Object.keys(globalStore).length === 0) {
-          // Do nothing or show alert
-      }
+      // 發生其他錯誤時，也切換到離線模式以保護使用者體驗
+      setIsOfflineMode(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   const saveEventToCloud = async (event: HistoryEvent) => {
+    // 如果已經是離線模式，跳過儲存
+    if (isOfflineMode) {
+        console.log('Demo 模式：模擬儲存成功 (資料僅在本地記憶體)', event);
+        return;
+    }
+
     const { error } = await supabase
       .from('events')
       .insert([event]);
     
     if (error) {
       console.error('Error saving to Supabase:', error);
-      alert('儲存失敗，請檢查網路或是 Database 設定');
+      // 這裡不使用 alert，避免打斷使用者體驗，改為 console log
+      console.warn('儲存失敗，可能因網路問題或資料庫設定錯誤');
     }
   };
 
@@ -128,7 +154,10 @@ function App() {
     const newUrl = window.location.pathname; // Clear query params
     window.history.pushState({ path: newUrl }, '', newUrl);
     setCurrentScreen(Screen.ADMIN);
-    fetchEvents(); // Refresh data when going back to admin
+    // Refresh data only if we are connected and online
+    if (!isOfflineMode) {
+        fetchEvents(); 
+    }
   };
 
   const handleNewHolderSubmit = async (name: string) => {
@@ -163,7 +192,7 @@ function App() {
     const newStore = { ...globalStore, [activeId]: newHistory };
     setGlobalStore(newStore);
 
-    // 5. Save to Cloud
+    // 5. Save to Cloud (or Mock)
     await saveEventToCloud(newEvent);
 
     // 6. Update Local State & Navigate
@@ -179,12 +208,12 @@ function App() {
 
   // --- Render Logic ---
 
-  if (isLoading && Object.keys(globalStore).length === 0) {
+  if (isLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-stone-50">
             <div className="animate-pulse flex flex-col items-center">
                 <div className="text-4xl mb-4">🐘</div>
-                <div className="text-stone-400 font-medium">載入大象旅程中...</div>
+                <div className="text-stone-400 font-medium">載入中...</div>
             </div>
         </div>
     );
@@ -248,8 +277,16 @@ function App() {
       </div>
       
       {/* Connection Status Indicator */}
-      <div className="fixed bottom-2 right-2 opacity-50 text-[10px] text-stone-400 pointer-events-none">
-        {isLoading ? 'Syncing...' : 'Connected to Cloud'}
+      <div className="fixed bottom-2 right-2 flex items-center gap-2 pointer-events-none">
+        {isOfflineMode ? (
+            <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] rounded-md shadow-sm font-medium">
+               ⚠️ Demo Mode (Table Not Found)
+            </span>
+        ) : (
+            <span className="text-[10px] text-stone-300">
+               Cloud Connected
+            </span>
+        )}
       </div>
     </div>
   );
