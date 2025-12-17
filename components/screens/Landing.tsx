@@ -3,16 +3,22 @@ import { Button } from '../Button';
 import { HelpCircle, CheckCircle2, XCircle } from 'lucide-react';
 
 interface LandingProps {
+  keychainId: string;
   lastHolderName: string;
   onYes: () => void;
   onNo: () => void;
 }
 
-export const Landing: React.FC<LandingProps> = ({ lastHolderName, onYes, onNo }) => {
+export const Landing: React.FC<LandingProps> = ({ keychainId, lastHolderName, onYes, onNo }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] space-y-8 animate-in fade-in duration-500">
-      <div className="w-32 h-32 bg-stone-200 rounded-full flex items-center justify-center mb-4">
-        <span className="text-6xl">🐘</span>
+      <div className="relative">
+        <div className="w-32 h-32 bg-stone-200 rounded-full flex items-center justify-center mb-4 shadow-inner">
+          <span className="text-6xl">🐘</span>
+        </div>
+        <div className="absolute -top-2 -right-2 bg-stone-800 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-stone-50">
+          ID #{keychainId}
+        </div>
       </div>
       
       <div className="text-center space-y-4 max-w-md">
@@ -21,7 +27,7 @@ export const Landing: React.FC<LandingProps> = ({ lastHolderName, onYes, onNo })
           你係我見過嘅小象嗎？
         </h1>
         <p className="text-stone-500 text-sm">
-          （這是鎖匙扣 ID: #8841 的傳遞旅程）
+          （這是 ID #{keychainId} 的傳遞旅程）
         </p>
       </div>
 

@@ -1,4 +1,5 @@
 export enum Screen {
+  ADMIN = 'ADMIN',         // New: Overview of all keychains
   LANDING = 'LANDING',     // P0
   RETURNING = 'RETURNING', // P1
   NEW_INPUT = 'NEW_INPUT', // P2
@@ -22,7 +23,8 @@ export interface Prompt {
   text: string;
 }
 
-export interface KeychainData {
-  id: string;
-  events: HistoryEvent[];
+// Key is the Keychain ID (e.g., "0", "1", "99")
+// Value is the history array
+export interface GlobalStore {
+  [keyId: string]: HistoryEvent[];
 }
