@@ -59,9 +59,13 @@ function App() {
     const store: GlobalStore = {};
     if (rawData) {
       rawData.forEach((event: any) => {
-        const kId = event.keychain_id;
+        // Ensure ID is string for React keys, even if DB returns number
+        const kId = String(event.keychain_id);
         if (!store[kId]) store[kId] = [];
-        store[kId].push(event);
+        store[kId].push({
+          ...event,
+          id: String(event.id)
+        });
       });
     }
     setGlobalStore(store);
@@ -75,9 +79,14 @@ function App() {
     setGlobalStore(newStore);
 
     // Save to Supabase
+    // CRITICAL FIX: The database 'id' column is likely type 'bigint' (auto-increment),
+    // but the frontend generates a UUID string. We must exclude 'id' from the insert
+    // so Supabase generates it automatically.
+    const { id, ...eventForDb } = event;
+
     const { error } = await supabase
       .from('NFC Keychain Journey events')
-      .insert([event]);
+      .insert([eventForDb]);
     
     if (error) {
       console.error('Failed to save to cloud:', error);
