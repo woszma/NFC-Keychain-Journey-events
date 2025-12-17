@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // 這裡非常重要：必須設定成你的 Repo 名字，前後都要有斜線
+  // 你的 Repo 網址是 https://github.com/woszma/NFC-Keychain-Journey-events
+  // 所以 base 必須是 /NFC-Keychain-Journey-events/
   base: '/NFC-Keychain-Journey-events/', 
 });
