@@ -21,19 +21,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ store, onSelectI
           <div className="inline-flex items-center justify-center p-3 bg-stone-200 rounded-full mb-2">
             <Map className="w-6 h-6 text-stone-700" />
           </div>
-          <h1 className="text-3xl font-bold text-stone-900">大象女士的旅程地圖</h1>
-          <p className="text-stone-500">目前有 {activeCount} 隻大象正在流浪，共 {totalSteps} 站旅程。</p>
+          <h1 className="text-3xl font-bold text-stone-900">大象女士嘅旅程地圖</h1>
+          <p className="text-stone-500">目前有 {activeCount} 位小將在路上（Active），共 {totalSteps} 個站點（Stations）。</p>
         </div>
-
-        <div className="flex justify-center gap-6 text-xs text-stone-500 border-b border-stone-200 pb-6">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-amber-200 rounded-full"></div>
-            <span>旅途中 (Active)</span>
+        <div className="flex flex-col items-center gap-2 text-xs text-stone-500 border-b border-stone-200 pb-6">
+          <div className="flex justify-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-amber-200 rounded-full"></div>
+              <span>在途（Active）</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-stone-100 border border-stone-200 rounded-full"></div>
+              <span>待接（Waiting）</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-stone-100 border border-stone-200 rounded-full"></div>
-            <span>未啟動 (Waiting)</span>
-          </div>
+          <div className="text-stone-400 text-xs mt-2">撳任一站點，睇該站記錄。</div>
         </div>
 
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">

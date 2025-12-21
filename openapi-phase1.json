@@ -1,0 +1,445 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NFC Keychain Journey - Phase 1 API",
+    "description": "功能 A（冒險者留言）+ 功能 D（小將回應）的 API 規格",
+    "version": "1.0.0",
+    "contact": {
+      "name": "NFC Keychain Journey Team",
+      "url": "https://github.com/cman/NFC-Keychain-Journey-events"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local development"
+    },
+    {
+      "url": "https://your-domain.com/api",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/blessings": {
+      "post": {
+        "summary": "提交祝福記錄（功能 A）",
+        "operationId": "createBlessing",
+        "tags": ["Blessings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlessingRequest"
+              },
+              "example": {
+                "keychain_id": "keychain-001",
+                "station_number": 3,
+                "quest_tag": "交給最想多謝的人",
+                "blessing_text": "謝謝你的信任",
+                "code_phrase": "小王",
+                "optional_note": "這一段特別感動",
+                "visibility": "Private"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "祝福成功建立",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlessingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "驗證失敗或包含 PII",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "exceeds_char_limit": {
+                    "value": {
+                      "error": "blessing_text exceeds 15 characters",
+                      "code": "VALIDATION_ERROR"
+                    }
+                  },
+                  "pii_detected": {
+                    "value": {
+                      "error": "Detected potential PII in blessing_text: phone number pattern",
+                      "code": "PII_DETECTED"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "超過速率限制（5 分鐘 3 筆）",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Rate limit exceeded. Please try again in 5 minutes",
+                  "code": "RATE_LIMIT_EXCEEDED",
+                  "retry_after": 180
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "取得鎖匙扣的所有祝福",
+        "operationId": "getBlessings",
+        "tags": ["Blessings"],
+        "parameters": [
+          {
+            "name": "keychain_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "鎖匙扣 ID"
+          },
+          {
+            "name": "station_number",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "特定站點（可選，篩選用）"
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["Private", "Public", "All"]
+            },
+            "description": "篩選隱私設定（預設 All）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "祝福列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BlessingResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blessings/{id}/hide": {
+      "patch": {
+        "summary": "隱藏祝福記錄（管理員操作）",
+        "operationId": "hideBlessing",
+        "tags": ["Blessings"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "祝福 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "is_hidden": {
+                    "type": "boolean"
+                  },
+                  "admin_reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "隱藏狀態已更新",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlessingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports": {
+      "post": {
+        "summary": "舉報祝福（功能 A）",
+        "operationId": "createReport",
+        "tags": ["Reports"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "舉報已提交",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reactions": {
+      "get": {
+        "summary": "取得小將回應（功能 D - Deterministic Randomness）",
+        "operationId": "getReaction",
+        "tags": ["Reactions"],
+        "parameters": [
+          {
+            "name": "journey_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "旅程 ID（= keychain_id）"
+          },
+          {
+            "name": "station_number",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "站點號碼"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "回應句子",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactionResponse"
+                },
+                "example": {
+                  "id": 1,
+                  "reaction_text": "謝謝你的信任，祝福一路同行。",
+                  "category": "Blessing",
+                  "type": "Gratitude",
+                  "seed": "hash(keychain-001:3)"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateBlessingRequest": {
+        "type": "object",
+        "required": ["keychain_id", "station_number", "blessing_text"],
+        "properties": {
+          "keychain_id": {
+            "type": "string",
+            "description": "鎖匙扣 ID"
+          },
+          "station_number": {
+            "type": "integer",
+            "description": "第幾站"
+          },
+          "quest_tag": {
+            "type": "string",
+            "description": "當時指令（例：『交給最想多謝的人』）"
+          },
+          "blessing_text": {
+            "type": "string",
+            "maxLength": 15,
+            "description": "祝福詞（必填，≤15 字）"
+          },
+          "code_phrase": {
+            "type": "string",
+            "maxLength": 10,
+            "description": "代號/暱稱（可選，≤10 字）"
+          },
+          "optional_note": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "備註（可選，≤120 字）"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": ["Private", "Public"],
+            "default": "Private",
+            "description": "隱私設定"
+          }
+        }
+      },
+      "BlessingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "keychain_id": {
+            "type": "string"
+          },
+          "station_number": {
+            "type": "integer"
+          },
+          "quest_tag": {
+            "type": "string"
+          },
+          "blessing_text": {
+            "type": "string"
+          },
+          "code_phrase": {
+            "type": "string"
+          },
+          "optional_note": {
+            "type": "string"
+          },
+          "visibility": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string"
+          },
+          "reported_count": {
+            "type": "integer"
+          },
+          "is_hidden": {
+            "type": "boolean"
+          },
+          "reaction": {
+            "type": "object",
+            "description": "小將回應（嵌入）",
+            "properties": {
+              "reaction_text": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "CreateReportRequest": {
+        "type": "object",
+        "required": ["blessing_id", "reason"],
+        "properties": {
+          "blessing_id": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string",
+            "enum": ["PII_EXPOSED", "INAPPROPRIATE", "SPAM", "OTHER"],
+            "description": "舉報理由"
+          },
+          "reported_by": {
+            "type": "string",
+            "description": "舉報者（可選，用於稽核）"
+          }
+        }
+      },
+      "ReportResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "blessing_id": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["Pending", "Reviewed", "Dismissed"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReactionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "reaction_text": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["Blessing", "Encouragement", "Resonance", "Ritual"]
+          },
+          "type": {
+            "type": "string",
+            "enum": ["Emotion", "Ritual", "Gratitude"]
+          },
+          "seed": {
+            "type": "string",
+            "description": "seed = hash(journey_id + station_number)，確保結果一致"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

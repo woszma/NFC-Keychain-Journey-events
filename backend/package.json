@@ -1,0 +1,48 @@
+{
+  "name": "nfc-keychain-journey-backend",
+  "version": "1.0.0-phase1",
+  "type": "module",
+  "description": "Express API Server for NFC Keychain Journey - Phase 1",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node --loader tsx src/server.ts",
+    "build": "tsc",
+    "lint": "eslint src --ext ts",
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "nfc",
+    "keychain",
+    "journey",
+    "express",
+    "supabase",
+    "api"
+  ],
+  "author": "NFC Keychain Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.6",
+    "@types/cors": "^2.8.17",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
+    "@typescript-eslint/parser": "^6.17.0",
+    "vitest": "^1.1.0",
+    "supertest": "^6.3.3",
+    "@types/supertest": "^6.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

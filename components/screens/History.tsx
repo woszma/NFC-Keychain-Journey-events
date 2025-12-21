@@ -30,18 +30,19 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ events, onBackHome }) 
   return (
     <div className="flex flex-col min-h-screen py-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-8 px-2">
-        <h2 className="text-2xl font-bold text-stone-800">鎖匙扣經歷</h2>
+        <h2 className="text-2xl font-bold text-stone-800">小將足跡</h2>
         <div className="flex items-center gap-2">
-            <span className="text-xs bg-stone-200 text-stone-600 px-2 py-1 rounded-full">
-            {events.length} stations
-            </span>
-            <button 
-                onClick={handleShare}
-                className="p-2 bg-stone-100 rounded-full text-stone-600 hover:bg-stone-200 transition-colors"
-                title="複製記錄"
-            >
-                <Share2 className="w-4 h-4" />
-            </button>
+          <span className="text-xs bg-stone-200 text-stone-600 px-2 py-1 rounded-full">
+          {events.length} 個站點
+          </span>
+          <button 
+            onClick={handleShare}
+            className="p-2 bg-stone-100 rounded-full text-stone-600 hover:bg-stone-200 transition-colors"
+            title="複製記錄"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+          <span className="text-xs text-stone-500">分享足跡（Share）</span>
         </div>
       </div>
 
@@ -67,7 +68,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ events, onBackHome }) 
               <div className="ml-20 bg-white p-5 rounded-2xl shadow-sm border border-stone-100 w-full hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <span className="text-xs text-stone-400 font-medium block uppercase tracking-wide">Holder</span>
+                    <span className="text-xs text-stone-400 font-medium block uppercase tracking-wide">守護者（Holder）</span>
                     <h3 className={`font-bold text-lg ${isLast ? 'text-stone-900' : 'text-stone-600'}`}>
                       {event.to_name}
                     </h3>
@@ -83,7 +84,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ events, onBackHome }) 
                       來自 <span className="font-medium text-stone-700">{event.from_name}</span>
                     </p>
                     <div className="mt-1 inline-flex items-center gap-1.5 px-2 py-1 bg-amber-50 text-amber-800 text-xs rounded-md font-medium">
-                      <span>因為：{event.prompt_text}</span>
+                      <span>任務：最想祝福嘅人（Quest）</span>
                     </div>
                   </div>
                 )}

@@ -23,35 +23,36 @@ export const Landing: React.FC<LandingProps> = ({ keychainId, lastHolderName, on
       
       <div className="text-center space-y-4 max-w-md">
         <h1 className="text-2xl font-bold text-stone-800 leading-snug">
-          你好，我係大象女士<br/>
-          你係我見過嘅小象嗎？
+          象群記錄：你接到小將（ID #{""}
+          {keychainId}
+          ）了嗎？
         </h1>
         <p className="text-stone-500 text-sm">
-          （這是 ID #{keychainId} 的傳遞旅程）
+          回覆一聲，等旅程唔會斷線。
         </p>
       </div>
 
       <div className="w-full max-w-sm space-y-4 pt-8">
-        <Button onClick={onYes} variant="outline" fullWidth className="flex items-center justify-center gap-2 h-auto py-4 text-left">
+          <Button onClick={onYes} variant="outline" fullWidth className="flex items-center justify-center gap-2 h-auto py-4 text-left">
           <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
           <div className="flex flex-col items-start">
-            <span className="font-bold">係，我係之前嗰個人</span>
-            <span className="text-xs opacity-70 font-normal">我是 {lastHolderName}</span>
+            <span className="font-bold">係，我係上一站守護者</span>
+            <span className="text-xs opacity-70 font-normal">我係：{lastHolderName}</span>
           </div>
         </Button>
 
         <Button onClick={onNo} variant="primary" fullWidth className="flex items-center justify-center gap-2 h-auto py-4 text-left">
           <XCircle className="w-5 h-5 flex-shrink-0" />
           <div className="flex flex-col items-start">
-            <span className="font-bold">唔係，我未見過你</span>
-            <span className="text-xs opacity-80 font-normal">係 {lastHolderName} 俾咗我呢個鎖匙扣</span>
+            <span className="font-bold">唔係，我係新加入嘅冒險者</span>
+            <span className="text-xs opacity-80 font-normal">由 {lastHolderName} 交到我手</span>
           </div>
         </Button>
       </div>
       
       <div className="flex items-center text-stone-400 text-xs gap-1">
         <HelpCircle className="w-3 h-3" />
-        <span>名字可以是暱稱或代號</span>
+        <span>名字可以用暱稱／代號（Nickname / Alias）</span>
       </div>
     </div>
   );
